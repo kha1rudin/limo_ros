@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
-import rospy
 from std_msgs.msg import String
+from limo_status_translator import *
+import rospy
 
 # global var
 client_data = None
+limo_data = None
 
 vehicle_state = int(0)
 control_mode = int(0)
@@ -20,7 +22,9 @@ def callback_client(data):
 
 # callback to limo
 def callback_limo(data):
-	rospy.loginfo("%s", data.data)
+	global limo_data
+	limo_data = data.data
+	rospy.loginfo("%s", limo_data)
 
 def status_string():
 	rospy.init_node('limo_status_translator_node', anonymous=True)
@@ -31,6 +35,9 @@ def status_string():
 	rtn_str = "No request"	
 
 	while not rospy.is_shutdown():
+		print("%s", limo_data)
+		rospy.wait_for_service('Get_limo_status')
+		request_info = rospy.ServiceProxy('Get_limo_status', GetLimoStatus)
 		if client_data == "0" : rtn_str = "STATUS 0"
 		pub_client.publish(rtn_str)
 		rate.sleep()
@@ -48,8 +55,7 @@ def status_string():
 		rate.sleep()
 		rospy.loginfo(rtn_str + " sent")
 		if client_data == "4" : rtn_str = "STATUS 4"
-		#communicate to client - return a string
-		pub_client.publish(rtn_str)
+		pub_client.publish(rtn_str)	# communicate to client - return a string
 		rate.sleep()
 		rospy.loginfo(rtn_str + " sent")
 
