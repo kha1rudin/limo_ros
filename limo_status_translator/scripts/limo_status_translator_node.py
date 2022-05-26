@@ -3,9 +3,16 @@
 import rospy
 from std_msgs.msg import String
 
-# callback from client
+# global var
 client_data = None
 
+vehicle_state = int(0)
+control_mode = int(0)
+battery_voltage = float(0.0)
+error_code = int(0)
+motion_mode = int(0)
+
+# callback from client
 def callback_client(data):
 	global client_data
 	client_data = data.data
@@ -17,7 +24,7 @@ def callback_limo(data):
 
 def status_string():
 	rospy.init_node('limo_status_translator_node', anonymous=True)
-	#sub_limo = rospy.Subscriber('limo_status', String, callback_limo)
+	sub_limo = rospy.Subscriber('limo_status', String, callback_limo)
 	sub_client = rospy.Subscriber('status_received', String, callback_client)
 	pub_client = rospy.Publisher('status_from_translator', String, queue_size=1)
 	rate = rospy.Rate(1)
